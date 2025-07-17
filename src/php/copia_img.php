@@ -1,4 +1,7 @@
 <?php
+    // para aumentar o tempo no qual o script pode ficar executando.
+    ini_set('max_execution_time', 300);
+    
     $siteUrl = null;
 
     if(php_sapi_name() === 'cli') {
@@ -9,7 +12,6 @@
             $siteUrl = $_POST['url'];
         }
     }
-    
     
     $destino = __DIR__ . "../../../imagens";
     if (!is_dir($destino)) {
@@ -68,15 +70,23 @@
             $imageUrl = getAbsoluteUrl($src, $url);
             $fileName = basename(parse_url($imageUrl, PHP_URL_PATH));
             $filePath = $destino . '/' . $fileName;
-
+           
             if (baixarImagem($imageUrl, $filePath)) {
                 echo "Imagem baixada: $fileName\n";
             } else {
                 echo "Falha ao baixar: $imageUrl\n";
             }
+           
         }
     }
 
     baixarImagens($siteUrl, $destino);
-    echo "Processo concluído.";
+    if(php_sapi_name() === 'cli') {
+        echo "Processo concluído.";
+    } else {
+        $_SESSION['flash'] = 'Finalizado com sucesso!';
+        header('Location: index.php');
+        exit;
+    }
+    
 ?>
